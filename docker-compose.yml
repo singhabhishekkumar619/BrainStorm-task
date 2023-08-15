@@ -1,0 +1,47 @@
+version: '3'
+services:
+  #PHP Service
+  app:
+    image: php:7.4-fpm
+    container_name: app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./web:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - brainstrom
+
+  #Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    volumes:
+      - ./web:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - brainstrom
+
+  #MySQL Service
+  db:
+    image: mysql:5.7.22
+    container_name: db
+    restart: unless-stopped
+    volumes:
+      - ./dbdata:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: brainstrom
+      MYSQL_ROOT_PASSWORD: brainstrom@123
+    networks:
+      - brainstrom
+
+#Docker Networks
+networks:
+  brainstrom:
+    driver: bridge
